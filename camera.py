@@ -129,8 +129,8 @@ if args.action == 'rec':
             'cam': cam
         }
         ffmpeg_cmd = '{bin_path} -i rtsp://{login}:{pass}@{ip}:{port}{uri} -r {frame_rate} -vcodec copy -an -t {time} {odir}{ofile} </dev/null >/dev/null 2>>{log_dir}{cam}.log &'.format(**format_dict)
-        print ffmpeg_cmd
-        #subprocess.call(cmd,shell=True)
+        #print ffmpeg_cmd
+        subprocess.call(cmd,shell=True)
 
 
 
