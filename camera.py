@@ -3,10 +3,11 @@
 
 import requests
 import sys
+import os
 import json
 import argparse
 
-conf_path='./camera.conf'
+conf_path = '{0}/camera.conf'.format(os.path.dirname(sys.argv[0]))
 
 def read_conf(path):
     try:
@@ -73,6 +74,24 @@ from datetime import timedelta
 import os
 import subprocess
 
+"""       FFMPEG LOG LEVELS
+          quiet, -8
+               Show nothing at all; be silent.
+           panic, 0
+               Only show fatal errors which could lead the process to crash, such as and assert failure. This is not currently used for anything.
+           fatal, 8
+               Only show fatal errors. These are errors after which the process absolutely cannot continue after.
+           error, 16
+               Show all errors, including ones which can be recovered from.
+           warning, 24
+               Show all warnings and errors. Any message related to possibly incorrect or unexpected events will be shown.
+           info, 32
+               Show informative messages during processing. This is in addition to warnings and errors. This is the default value.
+           verbose, 40
+               Same as "info", except more verbose.
+           debug, 48
+               Show everything, including debugging information."""
+
 def which(program):
     import os
     def is_exe(fpath):
@@ -111,7 +130,7 @@ if args.action == 'rec':
 
     for cam, cam_value in config['cameras'].iteritems():
         output_dir = '{0}{1}/'.format(config['global']['video_dir'], cam)
-        output_file = datetime.now().strftime("%Y-%m-%d_%H:%M.mp4")
+        output_file = datetime.now().strftime("%Y-%m-%d_%H_%M.mp4")
         if not os.path.isdir(output_dir):
             os.makedirs(output_dir, 0755)
         format_dict = {
@@ -126,9 +145,10 @@ if args.action == 'rec':
             'odir': output_dir,
             'ofile': output_file,
             'log_dir': config['global']['log_dir'],
+            'log_level': config['global']['log_level'],
             'cam': cam
         }
-        ffmpeg_cmd = '{bin_path} -i rtsp://{login}:{pass}@{ip}:{port}{uri} -r {frame_rate} -vcodec copy -an -t {time} {odir}{ofile} </dev/null >/dev/null 2>>{log_dir}{cam}.log &'.format(**format_dict)
+        ffmpeg_cmd = '{bin_path} -v {log_level} -i rtsp://{login}:{pass}@{ip}:{port}{uri} -r {frame_rate} -vcodec copy -an -t {time} {odir}{ofile} </dev/null >/dev/null 2>>{log_dir}{cam}.log &'.format(**format_dict)
         #print ffmpeg_cmd
         subprocess.call(ffmpeg_cmd, shell=True)
 
